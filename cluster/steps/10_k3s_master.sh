@@ -20,11 +20,47 @@ echo "⚠️  Пожалуйста подождите, не прерывайте
 echo "======================================"
 echo ""
 
-# Определяем версию K3s
+# Выбор канала K3s
+echo "====================================="
+echo "  Выбор версии K3s"
+echo "====================================="
+echo ""
+echo "Варианты:"
+echo "  1) Stable (рекомендуется)"
+echo "     - Стабильная версия, проверенная в продакшене"
+echo ""
+echo "  2) Latest (самая свежая)"
+echo "     - Последняя версия с новыми функциями"
+echo ""
+
+read -p "[10] Выберите канал [1-2] (Enter = 1): " CHANNEL_CHOICE
+
+if [[ -z "$CHANNEL_CHOICE" ]]; then
+  CHANNEL_CHOICE=1
+fi
+
+case $CHANNEL_CHOICE in
+  1)
+    K3S_CHANNEL="stable"
+    echo "[10] Выбран канал: stable"
+    ;;
+  2)
+    K3S_CHANNEL="latest"
+    echo "[10] Выбран канал: latest"
+    ;;
+  *)
+    echo "[10] Неверный выбор, используется stable"
+    K3S_CHANNEL="stable"
+    ;;
+esac
+
+echo ""
+echo "[10] Определение версии из канала ${K3S_CHANNEL}..."
+
+# Определяем версию из выбранного канала
 K3S_VERSION="v1.33.5+k3s1"
-echo "[10] Определение последней стабильной версии K3s..."
-LATEST_VERSION=$(curl -s https://update.k3s.io/v1-release/channels/stable | grep -oP '(?<=\"latest\":\")[^\"]*' || echo "$K3S_VERSION")
-if [[ -n "$LATEST_VERSION" ]]; then
+LATEST_VERSION=$(curl -s "https://update.k3s.io/v1-release/channels/${K3S_CHANNEL}" | grep -oP '(?<="latest":")[^"]*' || echo "$K3S_VERSION")
+if [[ -n "$LATEST_VERSION" && "$LATEST_VERSION" != "null" ]]; then
   K3S_VERSION="$LATEST_VERSION"
 fi
 echo "[10] Версия: $K3S_VERSION"
@@ -37,7 +73,8 @@ echo "[10] URL: $K3S_URL"
 echo ""
 
 # Используем wget для загрузки с прогресс-баром
-if ! wget --progress=bar:force:noscroll -O /tmp/k3s-download "$K3S_URL" 2>&1 | stdbuf -oL tr '\r' '\n' | grep --line-buffered -oP '[0-9]+%|[0-9.]+ [KM]B/s'; then
+if ! wget --progress=bar:force -O /tmp/k3s-download "$K3S_URL"; then
+  echo ""
   echo "[10] ❌ Ошибка загрузки k3s binary"
   echo "[10] Попробуйте позже или проверьте интернет-соединение"
   exit 1
