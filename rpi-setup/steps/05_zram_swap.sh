@@ -88,13 +88,33 @@ echo "[05] Итоговый размер ZRAM: ${ZRAM_SIZE_MB}MB (${FINAL_ZRAM_G
 
 cat >/usr/local/sbin/zram-start <<EOF
 #!/bin/sh
-modprobe zram || exit 1
+# Отключаем существующий swap если есть
+swapoff /dev/zram0 2>/dev/null || true
+
+# Загружаем модуль zram
+modprobe zram num_devices=1 2>/dev/null || true
+
+# Проверяем что устройство создано
+if [ ! -b /dev/zram0 ]; then
+  echo "ZRAM устройство не найдено"
+  exit 1
+fi
+
+# Сбрасываем устройство если оно уже инициализировано
+if [ -e /sys/block/zram0/disksize ]; then
+  echo 1 > /sys/block/zram0/reset 2>/dev/null || true
+fi
 
 # Автоматически вычисленный размер ZRAM: ${ZRAM_SIZE_MB}MB
 SIZE_BYTES=\$(($ZRAM_SIZE_MB * 1024 * 1024))
-echo zstd > /sys/block/zram0/comp_algorithm 2>/dev/null || true
+
+# Устанавливаем алгоритм сжатия
+echo zstd > /sys/block/zram0/comp_algorithm 2>/dev/null || echo lzo > /sys/block/zram0/comp_algorithm
+
+# Устанавливаем размер
 echo "\${SIZE_BYTES}" > /sys/block/zram0/disksize
 
+# Создаем swap
 mkswap /dev/zram0
 swapon --priority 100 /dev/zram0
 EOF
@@ -125,7 +145,8 @@ EOF
 
 systemctl daemon-reload
 systemctl enable zram.service
-systemctl restart zram.service
+# Запускаем сервис (используем start вместо restart для первого запуска)
+systemctl start zram.service 2>/dev/null || systemctl restart zram.service 2>/dev/null || true
 
 echo "[05] ZRAM настроен:"
 swapon --show || true

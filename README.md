@@ -16,6 +16,11 @@ RPI5-Autostart/
 
 ## 🚀 Быстрый старт
 
+cd ~/RPI5-Autostart
+chmod +x rpi-setup/run.sh rpi-setup/steps/*.sh
+chmod +x cluster/run.sh cluster/steps/*.sh
+sudo ~/RPI5-Autostart/rpi-setup/run.sh
+
 ### 1. Базовая настройка RPI5
 
 **Просто запустите без аргументов** (автоматически продолжит с нужного шага):

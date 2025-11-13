@@ -36,13 +36,13 @@ echo "[01] NTP синхронизация включена."
 # Обновление EEPROM (важно для RPI5 - новые фичи, исправления, стабильность)
 echo "[01] Проверка и обновление EEPROM..."
 if command -v rpi-eeprom-update >/dev/null 2>&1; then
-  CURRENT_EEPROM=$(rpi-eeprom-update 2>&1)
+  CURRENT_EEPROM=$(rpi-eeprom-update 2>&1 || true)
   echo "[01] Текущая версия EEPROM:"
   echo "$CURRENT_EEPROM" | head -5
   
   if echo "$CURRENT_EEPROM" | grep -q "UPDATE AVAILABLE"; then
     echo "[01] Доступно обновление EEPROM, устанавливаю..."
-    rpi-eeprom-update -d -a
+    rpi-eeprom-update -d -a || true
     echo "[01] ⚠️  EEPROM обновлен, потребуется перезагрузка после всех шагов"
   else
     echo "[01] ✓ EEPROM уже актуальной версии"

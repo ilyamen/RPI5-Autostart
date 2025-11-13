@@ -2,7 +2,8 @@
 set -euo pipefail
 
 LOG_FILE="/var/log/rpi-setup.log"
-STATE_DIR="/var/local/rpi-setup"
+# STATE_DIR в /boot/firmware чтобы сохранялось после переключения на NVMe
+STATE_DIR="/boot/firmware/rpi-setup-state"
 STEPS_DIR="$(dirname "$0")/steps"
 CURRENT_STEP_FILE="${STATE_DIR}/current_step"
 
