@@ -18,7 +18,7 @@ PACKAGES=(
   parted rsync curl wget git
   htop iotop iftop ncdu vim
   net-tools dnsutils lm-sensors
-  smartmontools ntp bc
+  smartmontools bc
 )
 
 echo "[01] Обновление списка пакетов..."
