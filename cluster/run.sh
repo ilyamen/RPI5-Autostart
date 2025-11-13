@@ -27,13 +27,13 @@ show_menu() {
   
   case "$choice" in
     1)
-      echo "master"
+      ROLE="master"
       ;;
     2)
-      echo "worker"
+      ROLE="worker"
       ;;
     3)
-      echo "dashboard"
+      ROLE="dashboard"
       ;;
     0)
       echo ""
@@ -71,7 +71,8 @@ ask_worker_credentials() {
 
 # Если запущено без аргументов - показываем меню
 if [[ $# -eq 0 ]]; then
-  ROLE=$(show_menu)
+  show_menu
+  # ROLE устанавливается внутри show_menu
 else
   ROLE="$1"
 fi

@@ -126,10 +126,12 @@ DISABLED_COUNT=0
 for service in "${SERVICES_TO_DISABLE[@]}"; do
   if systemctl list-unit-files | grep -q "^${service}"; then
     echo "[07] Отключаю $service..."
-    systemctl disable "$service" 2>/dev/null || true
-    systemctl stop "$service" 2>/dev/null || true
+    set +e
+    systemctl disable "$service" >/dev/null 2>&1
+    systemctl stop "$service" >/dev/null 2>&1
+    set -e
     echo "[07] ✓ $service отключен"
-    ((DISABLED_COUNT++))
+    DISABLED_COUNT=$((DISABLED_COUNT + 1))
   else
     echo "[07] - $service не найден, пропускаю"
   fi
@@ -146,9 +148,11 @@ MASKED_COUNT=0
 for service in "${SERVICES_TO_MASK[@]}"; do
   if systemctl list-unit-files | grep -q "^${service}"; then
     echo "[07] Маскирую $service..."
-    systemctl mask "$service" 2>/dev/null || true
+    set +e
+    systemctl mask "$service" >/dev/null 2>&1
+    set -e
     echo "[07] ✓ $service замаскирован"
-    ((MASKED_COUNT++))
+    MASKED_COUNT=$((MASKED_COUNT + 1))
   fi
 done
 
