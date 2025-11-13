@@ -17,6 +17,8 @@ RPI5-Autostart/
 ## 🚀 Быстрый старт
 
 cd ~/RPI5-Autostart
+git reset --hard origin/main
+git pull
 chmod +x rpi-setup/run.sh rpi-setup/steps/*.sh
 chmod +x cluster/run.sh cluster/steps/*.sh
 sudo ~/RPI5-Autostart/rpi-setup/run.sh

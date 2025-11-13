@@ -9,9 +9,16 @@ if systemctl is-active --quiet k3s; then
 fi
 
 # Оптимизированная установка k3s server для RPI5 8GB
-# Отключаем traefik и servicelb (можем установить свои позже)
-# Включаем metrics-server для мониторинга
-echo "[10] Установка k3s с оптимизациями для RPI5..."
+echo ""
+echo "======================================"
+echo "  📦 Загрузка K3s"
+echo "======================================"
+echo "Размер: ~70MB"
+echo "Время: 1-3 минуты (зависит от интернета)"
+echo ""
+echo "⚠️  Пожалуйста подождите, не прерывайте процесс..."
+echo "======================================"
+echo ""
 
 curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=" \
   --disable traefik \
@@ -24,7 +31,12 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=" \
   --kubelet-arg=max-pods=110 \
   --kubelet-arg=eviction-hard=memory.available<500Mi \
   --kubelet-arg=eviction-soft=memory.available<1Gi \
-  --kubelet-arg=eviction-soft-grace-period=memory.available=1m30s" sh -
+  --kubelet-arg=eviction-soft-grace-period=memory.available=1m30s" sh - 2>&1 | while IFS= read -r line; do
+  # Показываем все сообщения от установщика
+  echo "    $line"
+done
+
+echo ""
 
 echo "[10] ✓ k3s master установлен с оптимизациями"
 
