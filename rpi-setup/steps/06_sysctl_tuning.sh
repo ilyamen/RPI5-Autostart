@@ -6,6 +6,7 @@ echo ""
 
 # Backup существующего файла если есть
 SYSCTL_FILE="/etc/sysctl.d/99-swap-and-containers.conf"
+BACKUP_FILE=""
 if [[ -f "$SYSCTL_FILE" ]]; then
   BACKUP_FILE="${SYSCTL_FILE}.bak.$(date +%s)"
   echo "[06] Создаю backup: $BACKUP_FILE"
@@ -193,7 +194,7 @@ fi
 
 echo ""
 echo "[06] Конфигурация: /etc/sysctl.d/99-swap-and-containers.conf"
-if [[ -f "$BACKUP_FILE" ]]; then
+if [[ -n "$BACKUP_FILE" ]]; then
   echo "[06] Backup: $BACKUP_FILE"
 fi
 echo ""
