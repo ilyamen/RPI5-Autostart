@@ -20,7 +20,42 @@ echo "⚠️  Пожалуйста подождите, не прерывайте
 echo "======================================"
 echo ""
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=" \
+# Определяем версию K3s
+K3S_VERSION="v1.33.5+k3s1"
+echo "[10] Определение последней стабильной версии K3s..."
+LATEST_VERSION=$(curl -s https://update.k3s.io/v1-release/channels/stable | grep -oP '(?<=\"latest\":\")[^\"]*' || echo "$K3S_VERSION")
+if [[ -n "$LATEST_VERSION" ]]; then
+  K3S_VERSION="$LATEST_VERSION"
+fi
+echo "[10] Версия: $K3S_VERSION"
+echo ""
+
+# Загружаем k3s binary с прогресс-баром
+K3S_URL="https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-arm64"
+echo "[10] Загрузка k3s binary..."
+echo "[10] URL: $K3S_URL"
+echo ""
+
+# Используем wget для загрузки с прогресс-баром
+if ! wget --progress=bar:force:noscroll -O /tmp/k3s-download "$K3S_URL" 2>&1 | stdbuf -oL tr '\r' '\n' | grep --line-buffered -oP '[0-9]+%|[0-9.]+ [KM]B/s'; then
+  echo "[10] ❌ Ошибка загрузки k3s binary"
+  echo "[10] Попробуйте позже или проверьте интернет-соединение"
+  exit 1
+fi
+
+echo ""
+echo "[10] ✓ K3s binary загружен"
+echo ""
+
+# Устанавливаем загруженный binary
+sudo install -o root -g root -m 0755 /tmp/k3s-download /usr/local/bin/k3s
+rm -f /tmp/k3s-download
+
+echo "[10] Запуск установщика k3s..."
+echo ""
+
+# Запускаем установщик с уже загруженным binary
+curl -sfL https://get.k3s.io | INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC=" \
   --disable traefik \
   --disable servicelb \
   --write-kubeconfig-mode 644 \
@@ -31,10 +66,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC=" \
   --kubelet-arg=max-pods=110 \
   --kubelet-arg=eviction-hard=memory.available<500Mi \
   --kubelet-arg=eviction-soft=memory.available<1Gi \
-  --kubelet-arg=eviction-soft-grace-period=memory.available=1m30s" sh - 2>&1 | while IFS= read -r line; do
-  # Показываем все сообщения от установщика
-  echo "    $line"
-done
+  --kubelet-arg=eviction-soft-grace-period=memory.available=1m30s" sh -
 
 echo ""
 
