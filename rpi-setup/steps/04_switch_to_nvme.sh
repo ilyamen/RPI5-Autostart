@@ -44,8 +44,8 @@ else
   echo "root=PARTUUID=${SSD_PARTUUID} ${line}" > "$CMDLINE"
 fi
 
-echo "[04] Новый cmdline.txt:"
-cat "$CMDLINE"
+echo "[04] ✓ cmdline.txt обновлён"
+echo "[04] Backup: ${CMDLINE}.bak.*"
 
 # --- fstab на SSD ---
 FSTAB_SSD="${SSD_MOUNT}/etc/fstab"
@@ -67,7 +67,27 @@ awk -v uuid="$SSD_UUID" '
 
 mv "${FSTAB_SSD}.new" "$FSTAB_SSD"
 
-echo "[04] Новый fstab на SSD:"
-cat "$FSTAB_SSD"
+echo "[04] ✓ fstab обновлён"
+echo "[04] Backup: ${FSTAB_SSD}.bak.*"
 
-echo "[04] Готово. Теперь можно будет перезагружаться в root с NVMe."
+echo ""
+echo "======================================"
+echo "  ✅ Переключение на NVMe завершено"
+echo "======================================"
+echo "[04] Конфигурация загрузки:"
+echo "  • Root device: $PART"
+echo "  • UUID: $SSD_UUID"
+echo "  • PARTUUID: $SSD_PARTUUID"
+echo ""
+echo "[04] Обновлённые файлы:"
+echo "  • /boot/firmware/cmdline.txt"
+echo "  • /mnt/ssd/etc/fstab"
+echo ""
+echo "[04] Backup файлы:"
+echo "  • ${CMDLINE}.bak.*"
+echo "  • ${FSTAB_SSD}.bak.*"
+echo ""
+echo "[04] ⚠️  ТРЕБУЕТСЯ ПЕРЕЗАГРУЗКА!"
+echo "[04] После reboot система загрузится с NVMe"
+echo "[04] Затем запустите: sudo ./run.sh"
+echo "======================================"
