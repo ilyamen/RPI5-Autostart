@@ -16,12 +16,50 @@ RPI5-Autostart/
 
 ## 🚀 Быстрый старт
 
+### Первоначальная установка (на новой Raspberry Pi)
+
+```bash
+# Обновляем систему и устанавливаем необходимые пакеты
+sudo apt update
+sudo apt install -y git curl wget
+
+# Клонируем репозиторий
+cd ~
+git clone https://github.com/ilyamen/RPI5-Autostart.git
+cd RPI5-Autostart
+
+# Делаем скрипты исполняемыми
+chmod +x rpi-setup/run.sh rpi-setup/steps/*.sh
+chmod +x cluster/run.sh cluster/steps/*.sh
+
+# Запускаем базовую настройку
+sudo ~/RPI5-Autostart/rpi-setup/run.sh
+
+# После завершения базовой настройки - настраиваем кластер
+sudo ~/RPI5-Autostart/cluster/run.sh
+# Выберите: 1 для master, 2 для worker
+```
+
+### Обновление репозитория (для уже установленного)
+
+```bash
+# Обновляем код из GitHub
 cd ~/RPI5-Autostart
 git reset --hard origin/main
 git pull
+
+# Обновляем права на выполнение (на всякий случай)
 chmod +x rpi-setup/run.sh rpi-setup/steps/*.sh
 chmod +x cluster/run.sh cluster/steps/*.sh
+
+# Продолжаем или перезапускаем настройку
 sudo ~/RPI5-Autostart/rpi-setup/run.sh
+
+# Настраиваем кластер (если нужно)
+sudo ~/RPI5-Autostart/cluster/run.sh
+```
+
+---
 
 ### 1. Базовая настройка RPI5
 
